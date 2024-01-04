@@ -226,20 +226,7 @@ struct gguf_file_t {
 
 #### 必需
 
-- **`general.architecture: string`**
-
-  : 描述此模型实现的架构。全部为小写ASCII字符，仅允许
-
-   
-
-  ```
-  [a-z0-9]+
-  ```
-
-   
-
-  。已知的值包括：
-
+- **`general.architecture: string`**: 描述此模型实现的架构。全部为小写ASCII字符，仅允许`[a-z0-9]+`。已知的值包括：
   - `llama`
   - `mpt`
   - `gptneox`
@@ -265,12 +252,7 @@ struct gguf_file_t {
 
 - `general.license: string`：模型的许可证，以[SPDX许可证表达式](https://spdx.github.io/spdx-spec/v2-draft/SPDX-license-expressions/)表示（例如，`"MIT OR Apache-2.0`）。不包括任何其他信息，如许可证文本或许可证的URL。
 
-- ```
-  general.file_type: uint32
-  ```
-
-  ：描述文件中大多数张量类型的枚举值。可选；可以从张量类型中推断出。 
-
+- `general.file_type: uint32`：描述文件中大多数张量类型的枚举值。可选；可以从张量类型中推断出。 
   - `ALL_F32 = 0`
   - `MOSTLY_F16 = 1`
   - `MOSTLY_Q4_0 = 2`
@@ -302,7 +284,7 @@ struct gguf_file_t {
 
 以下是LLM架构中可用的键值对。其中 `[llm]` 用于表示特定LLM架构的名称。例如，`llama` 代表LLaMA，`mpt` 代表MPT等。如果在架构的部分提到，那么对于该架构来说，这些键是必需的，但并非所有键都对所有架构都是必需的。请查阅相关部分以获取更多信息。
 
-- `[llm].context_length: uint64`：也称为 `n_ctx`。模型训练时上下文的长度（以标记表示）。对于大多数架构，这是输入长度的硬限制。并非依赖于变压器式注意力的架构（例如RWKV）可能能够处理更大的输入，但这并不保证。
+- `[llm].context_length: uint64`：也称为 `n_ctx`。模型训练时上下文的长度（以标记表示）。对于大多数架构，这是输入长度的硬限制。并非依赖于Transformer类型的注意力机制架构（例如RWKV）可能能够处理更大的输入，但这并不保证。
 - `[llm].embedding_length: uint64`：也称为 `n_embd`。嵌入层大小。
 - `[llm].block_count: uint64`：注意力+前馈层块的数量（即LLM的主体部分）。不包括输入或嵌入层。
 - `[llm].feed_forward_length: uint64`：也称为 `n_ff`。前馈层的长度。
@@ -478,7 +460,7 @@ struct gguf_file_t {
 
 ### Whisper
 
-未定义类型的键值对应 `llm.` 键的定义。例如，`whisper.context_length` 等同于 `llm.context_length`。这是因为它们都是变压器模型。
+未定义类型的键值对应 `llm.` 键的定义。例如，`whisper.context_length` 等同于 `llm.context_length`。这是因为它们都是Transformer模型。
 
 - `whisper.encoder.context_length`
 - `whisper.encoder.embedding_length`
@@ -513,53 +495,40 @@ GGML支持嵌入式词汇表，可用于推断模型，但是使用此词汇表�
 
 这不保证在模型间标准化，并且可能会在将来更改。建议模型作者尽可能使用更标准化的分词器。
 
-- `tokenizer.ggml.model: string`
-  : 分词器模型的名称。
+- `tokenizer.ggml.model: string`: 分词器模型的名称。
   - `llama`: Llama 风格的 SentencePiece（从 HF `tokenizer.model` 提取的标记和分数）
   - `replit`: Replit 风格的 SentencePiece（从 HF `spiece.model` 提取的标记和分数）
   - `gpt2`: GPT-2 / GPT-NeoX 风格的 BPE（从 HF `tokenizer.json` 提取的标记）
   - `rwkv`: RWKV 分词器
 
-- `tokenizer.ggml.tokens: array[string]`
-  : 由模型使用的标记的列表，按照模型使用的标记ID进行索引。
+- `tokenizer.ggml.tokens: array[string]`: 由模型使用的标记的列表，按照模型使用的标记ID进行索引。
 
-- `tokenizer.ggml.scores: array[float32]`
-  : 如果存在，则每个标记的分数/概率。如果不存在，则假定所有标记具有相等的概率。如果存在，则它必须与 `tokens` 具有相同的长度和索引。
+- `tokenizer.ggml.scores: array[float32]`: 如果存在，则每个标记的分数/概率。如果不存在，则假定所有标记具有相等的概率。如果存在，则它必须与 `tokens` 具有相同的长度和索引。
 
-- `tokenizer.ggml.token_type: array[int32]`
-  : 标记类型（1=正常，2=未知，3=控制，4=用户定义，5=未使用，6=字节）。如果存在，则它必须与 `tokens` 具有相同的长度和索引。
+- `tokenizer.ggml.token_type: array[int32]`: 标记类型（1=正常，2=未知，3=控制，4=用户定义，5=未使用，6=字节）。如果存在，则它必须与 `tokens` 具有相同的长度和索引。
 
-- `tokenizer.ggml.merges: array[string]`
-  : 如果存在，则为分词器的合并。如果不存在，则假定标记是原子的。
+- `tokenizer.ggml.merges: array[string]`: 如果存在，则为分词器的合并。如果不存在，则假定标记是原子的。
 
 ##### 特殊标记
 
-- `tokenizer.ggml.bos_token_id: uint32`
-  : 序列开始标记
-- `tokenizer.ggml.eos_token_id: uint32`
-  : 序列结束标记
-- `tokenizer.ggml.unknown_token_id: uint32`
-  : 未知标记
-- `tokenizer.ggml.separator_token_id: uint32`
-  : 分隔符标记
-- `tokenizer.ggml.padding_token_id: uint32`
-  : 填充标记
+- `tokenizer.ggml.bos_token_id: uint32`: 序列开始标记
+- `tokenizer.ggml.eos_token_id: uint32`: 序列结束标记
+- `tokenizer.ggml.unknown_token_id: uint32`: 未知标记
+- `tokenizer.ggml.separator_token_id: uint32`: 分隔符标记
+- `tokenizer.ggml.padding_token_id: uint32`: 填充标记
 
 #### Hugging Face
 
 Hugging Face维护着自己的 `tokenizers` 库，支持多种分词器。如果您的执行器使用此库，可能可以直接使用模型的分词器。
 
-- `tokenizer.huggingface.json: string`
-  : 给定模型的完整 HF `tokenizer.json`（例如 https://huggingface.co/mosaicml/mpt-7b-instruct/blob/main/tokenizer.json）。包含是为了与直接支持HF分词器的执行器兼容。
+- `tokenizer.huggingface.json: string`: 给定模型的完整 HF `tokenizer.json`（例如 https://huggingface.co/mosaicml/mpt-7b-instruct/blob/main/tokenizer.json）。包含是为了与直接支持HF分词器的执行器兼容。
 
 #### 其他
 
 其他分词器可能会被使用，但不一定是标准化的。它们可能是特定于执行器的。随着它们被发现/进一步开发，它们将在此进行记录。
 
-- `tokenizer.rwkv.world: string`
-  : 一个RWKV World分词器，类似于[此处](https://github.com/BlinkDL/ChatRWKV/blob/main/tokenizer/rwkv_vocab_v20230424.txt)。此文本文件应按原样包含。 
-- `tokenizer.chat_template : string`
-  : 一个指定模型所期望输入格式的Jinja模板。更多详情参见：https://huggingface.co/docs/transformers/main/en/chat_templating
+- `tokenizer.rwkv.world: string`: 一个RWKV World分词器，类似于[此处](https://github.com/BlinkDL/ChatRWKV/blob/main/tokenizer/rwkv_vocab_v20230424.txt)。此文本文件应按原样包含。 
+- `tokenizer.chat_template : string`: 一个指定模型所期望输入格式的Jinja模板。更多详情参见：https://huggingface.co/docs/transformers/main/en/chat_templating
 
 
 ### 计算图
@@ -574,9 +543,7 @@ GGML 节点的样本计算图可以包含在模型本身中，允许执行器运
 
 ### 基础层
 
-```
-AA.weight` `AA.bias
-```
+`AA.weight` `AA.bias`
 
 其中 `AA` 可以是：
 
@@ -587,9 +554,7 @@ AA.weight` `AA.bias
 
 ### 注意力和前馈层块
 
-```
-blk.N.BB.weight` `blk.N.BB.bias
-```
+`blk.N.BB.weight` `blk.N.BB.bias`
 
 其中 N 表示层所属的块编号，`BB` 可以是：
 
@@ -639,7 +604,7 @@ blk.N.BB.weight` `blk.N.BB.bias
 - **GGMF**（版本化）：与 GGML 相同，但具有版本控制。只有一个版本存在。
 - **GGJT**：对张量进行对齐，以便用于 `mmap`，这需要对齐。v1、v2 和 v3 是相同的，但后续版本使用了与之前版本不兼容的不同量化方案。
 
-GGML 主要由 `ggml` 中的示例使用，而 `llama.cpp` 模型使用 GGJT。其他执行器可能会使用其中任何一种格式，但这并不是"官方"支持的。
+GGML 主要由 `ggml` 中的示例使用，而 `llama.cpp` 模型使用 GGJT。其他执行器可能会使用其中任何一种格式，但这并不是“官方”支持的。
 
 这些格式共享相同的基本结构：
 
